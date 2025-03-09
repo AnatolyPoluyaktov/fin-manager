@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  db:
+    restart: always
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=local-user
+      - POSTGRES_PASSWORD=local-password
+      - POSTGRES_DB=fin-manager
+    volumes:
+      - ./internal/storage/pg/data:/var/lib/postgresql/data
+    networks:
+        - fin-manager-network
+networks:
+    fin-manager-network:
+        driver: bridge
