@@ -5,6 +5,7 @@ import (
 	"fin-manager/internal/domain"
 	"fin-manager/internal/storage/pg"
 	"fmt"
+	"github.com/jackc/pgx/v5"
 )
 
 type ExpensesRepository struct {
@@ -18,9 +19,15 @@ func NewExpensesRepository(db *pg.DB) (*ExpensesRepository, error) {
 func (e *ExpensesRepository) CreateExpense(ctx context.Context, new_expense domain.NewExpenseData) (*domain.Expense, error) {
 	tx, err := e.DB.Pool.Begin(ctx)
 	if err != nil {
-		fmt.Errorf("error starting transaction: %v", err)
+		_ = fmt.Errorf("error starting transaction: %v", err)
 	}
-	defer tx.Rollback(ctx)
+	defer func(tx pgx.Tx, ctx context.Context) {
+		err := tx.Rollback(ctx)
+		if err != nil {
+
+			_ = fmt.Errorf("error rolling back transaction: %v", err)
+		}
+	}(tx, ctx)
 
 	created_expense, err := domain.NewExpense(new_expense)
 	if err != nil {

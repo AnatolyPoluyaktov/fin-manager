@@ -63,7 +63,10 @@ func main() {
 
 	// create info route
 	router.Get("/info", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Fin manager API"))
+		_, err := w.Write([]byte("Fin manager API"))
+		if err != nil {
+			return
+		}
 
 	})
 	server := http_server.NewServer(router, cfg.Server.Address)

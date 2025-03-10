@@ -27,7 +27,10 @@ func setupRouter() *chi.Mux {
 }
 
 func TestCreateExpense(t *testing.T) {
-	testDB.DB.Pool.Exec(context.Background(), "INSERT INTO categories (id, name, description) VALUES (1, 'test_category', 'test_description')")
+	_, err2 := testDB.DB.Pool.Exec(context.Background(), "INSERT INTO categories (id, name, description) VALUES (1, 'test_category', 'test_description')")
+	if err2 != nil {
+		return
+	}
 
 	router := setupRouter()
 	server := httptest.NewServer(router)

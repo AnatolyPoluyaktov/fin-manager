@@ -5,6 +5,7 @@ import (
 	"fin-manager/internal/domain"
 	"fin-manager/internal/storage/pg"
 	"fmt"
+	"github.com/jackc/pgx/v5"
 )
 
 type CategoryRepository struct {
@@ -21,11 +22,19 @@ func (c *CategoryRepository) CreateCategory(ctx context.Context, new_category do
 	if err != nil {
 		return nil, fmt.Errorf("error starting transaction: %v", err)
 	}
-	defer tx.Rollback(ctx)
-	created_category, err := domain.NewCategory(new_category)
+	defer func(tx pgx.Tx, ctx context.Context) {
+		err := tx.Rollback(ctx)
+		if err != nil {
+			fmt.Printf("error rolling back transaction: %v", err)
+		}
+	}(tx, ctx)
+	createdCategory, err := domain.NewCategory(new_category)
+	if err != nil {
+		return nil, fmt.Errorf("error creating new category: %v", err)
+	}
 	query := `INSERT INTO categories (name, description)
 			          VALUES ($1, $2) RETURNING id`
-	err = tx.QueryRow(ctx, query, new_category.Name, new_category.Description).Scan(&created_category.ID)
+	err = tx.QueryRow(ctx, query, new_category.Name, new_category.Description).Scan(&createdCategory.ID)
 
 	if err != nil {
 		return nil, fmt.Errorf("error inserting category: %v", err)
@@ -34,7 +43,7 @@ func (c *CategoryRepository) CreateCategory(ctx context.Context, new_category do
 	if err != nil {
 		return nil, fmt.Errorf("error committing transaction: %v", err)
 	}
-	return &created_category, nil
+	return &createdCategory, nil
 }
 
 func (c *CategoryRepository) GetCategories(ctx context.Context) ([]domain.Category, error) {

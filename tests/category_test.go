@@ -67,7 +67,10 @@ func TestGetCategories(t *testing.T) {
 
 	// Вставляем тестовые данные
 	for _, category := range expectedCategories {
-		testDB.DB.Pool.Exec(context.Background(), "INSERT INTO categories (id, name, description) VALUES ($1, $2, $3)", category.ID, category.Name, category.Description)
+		_, err := testDB.DB.Pool.Exec(context.Background(), "INSERT INTO categories (id, name, description) VALUES ($1, $2, $3)", category.ID, category.Name, category.Description)
+		if err != nil {
+			return
+		}
 	}
 
 	router := setupCategoryRouter()

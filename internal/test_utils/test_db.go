@@ -32,18 +32,27 @@ func SetupTestDb(cfg config.Config) (*TestDb, error) {
 	})
 
 	if err != nil {
-		container.Terminate(ctx)
+		err := container.Terminate(ctx)
+		if err != nil {
+			return nil, err
+		}
 		return nil, err
 	}
 	host, err := container.Host(ctx)
 
 	if err != nil {
-		container.Terminate(ctx)
+		err := container.Terminate(ctx)
+		if err != nil {
+			return nil, err
+		}
 		return nil, err
 	}
 	port, err := container.MappedPort(ctx, "5432")
 	if err != nil {
-		container.Terminate(ctx)
+		err := container.Terminate(ctx)
+		if err != nil {
+			return nil, err
+		}
 		return nil, err
 	}
 	time.Sleep(2 * time.Second)
@@ -53,7 +62,10 @@ func SetupTestDb(cfg config.Config) (*TestDb, error) {
 	db := pg.New(ctx, cfg)
 	err = db.Migrate(cfg.MigrationsPath)
 	if err != nil {
-		container.Terminate(ctx)
+		err := container.Terminate(ctx)
+		if err != nil {
+			return nil, err
+		}
 		return nil, err
 	}
 	return &TestDb{
@@ -64,5 +76,8 @@ func SetupTestDb(cfg config.Config) (*TestDb, error) {
 
 func (t *TestDb) CleanUp() {
 	t.DB.Close()
-	t.Container.Terminate(context.Background())
+	err := t.Container.Terminate(context.Background())
+	if err != nil {
+		return
+	}
 }
