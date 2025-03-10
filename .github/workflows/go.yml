@@ -10,24 +10,18 @@ on:
     branches: [ "main" ]
 
 jobs:
-  lint:
-    name: linting
+  golangci:
+    name: lint
     runs-on: ubuntu-latest
     steps:
-      - name: reposirory checkout
-        uses: actions/checkout@v3
-        
-      - name: go setup
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
-          go-version: '1.23.5'
-
-      - name: install golangci-lint
-        run: |
-          curl -sSFL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.50.0
-
-      - name: run linter
-        run: golangci-lint run
+          go-version: stable
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.64
 
   build:
     runs-on: ubuntu-latest
