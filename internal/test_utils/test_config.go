@@ -1,7 +1,10 @@
 package test_util
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
+	"runtime"
 )
 
 // SetupTestConfig заполняет переменные окружения для тестирования
@@ -36,7 +39,13 @@ func SetupTestConfig(env string) {
 	if err != nil {
 		return
 	}
-	err = os.Setenv("MIGRATIONS_PATH", "migrations")
+
+	_, b, _, _ := runtime.Caller(0)
+
+	Root := filepath.Join(filepath.Dir(b), "../..")
+
+	migrationsPath := fmt.Sprintf("file:///%s/internal/migrations", Root)
+	err = os.Setenv("MIGRATIONS_PATH", migrationsPath)
 	if err != nil {
 		return
 	}
