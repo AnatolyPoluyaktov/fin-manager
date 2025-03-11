@@ -68,4 +68,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: your-dockerhub-username/your-image-name:${{ env.TAG }}, your-dockerhub-username/your-image-name:latest
+          tags: blackandromeda/fin-manager:${{ env.TAG }}, blackandromeda/fin-manager:latest
