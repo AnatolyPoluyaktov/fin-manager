@@ -1,0 +1,2 @@
+ALTER TABLE expenses
+DROP CONSTRAINT unique_category_date_amount;
